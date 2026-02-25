@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>障害登録画面</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 30px;
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    form {
+      width: 400px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 30px;
+    }
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      box-sizing: border-box;
+    }
+    button[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1em;
+      margin-top: 10px;
+    }
+    button[type="submit"]:hover {
+      background-color: #45a049;
+    }
+    #message {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    .links {
+      margin-top: 20px;
+    }
+    .links a {
+      margin-right: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>障害登録フォーム</h2>
+  <form id="issueForm">
+    <label>
+      項目名:
+      <input type="text" id="title" required>
+    </label>
+
+    <label>
+      発生日:
+      <input type="date" id="date" required>
+    </label>
+
+    <label>
+      発見者:
+      <input type="text" id="human" required>
+    </label>
+
+    <label>
+      障害概要:
+      <textarea id="summary" required></textarea>
+    </label>
+
+    <label>
+      詳細内容:
+      <textarea id="description" required></textarea>
+    </label>
+
+    <label>
+      優先度:
+      <select id="severity">
+        <option value="低">低</option>
+        <option value="中">中</option>
+        <option value="高">高</option>
+      </select>
+    </label>
+
+    <button type="submit">登録</button>
+  </form>
+
+  <div id="message"></div>
+
+  <div class="links">
+    <a href="list.html" target="_blank">登録済み障害一覧を見る</a>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const issueForm = document.getElementById('issueForm');
+      const messageDiv = document.getElementById('message');
+
+      issueForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const title = document.getElementById('title').value.trim();
+        const date = document.getElementById('date').value;
+        const human = document.getElementById('human').value.trim();
+        const summary = document.getElementById('summary').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const severity = document.getElementById('severity').value;
+
+        if (!title || !date || !human || !summary || !description) {
+          showMessage('すべての項目を入力してください。', 'error');
+          return;
+        }
+
+        const issueData = {
+          title,
+          date,
+          human,
+          summary,
+          description,
+          severity,
+          registeredAt: new Date().toLocaleString('ja-JP') // 登録日時を追加
+        };
+
+        // 既存の障害データを localStorage から取得
+        let issues = JSON.parse(localStorage.getItem('issues')) || [];
+        issues.unshift(issueData); // 新しいデータをリストの先頭に追加
+
+        // データを localStorage に保存
+        localStorage.setItem('issues', JSON.stringify(issues));
+
+        showMessage('障害を正常に登録しました。', 'success');
+
+        // フォームのリセット
+        issueForm.reset();
+      });
+
+      function showMessage(message, type) {
+        messageDiv.textContent = message;
+        messageDiv.style.color = type === 'error' ? 'red' : 'green';
+        setTimeout(() => {
+          messageDiv.textContent = '';
+        }, 3000);
+      }
+    });
+  </script>
+
+</body>
+</html>
