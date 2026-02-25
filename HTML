@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>登録済み障害一覧</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 30px;
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 0.9em;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .delete-btn {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8em;
+    }
+    .delete-btn:hover {
+      background-color: #c82333;
+    }
+    #noIssuesMessage {
+      color: #666;
+      margin-top: 20px;
+    }
+    .links {
+      margin-top: 20px;
+    }
+    .links a {
+      margin-right: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>登録済み障害一覧</h2>
+  <div id="noIssuesMessage" style="display: none;">まだ登録された障害はありません。</div>
+  <table id="issueTable">
+    <thead>
+      <tr>
+        <th>項目名</th>
+        <th>発生日</th>
+        <th>発見者</th>
+        <th>障害概要</th>
+        <th>詳細内容</th>
+        <th>優先度</th>
+        <th>登録日時</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      </tbody>
+  </table>
+
+  <div class="links">
+    <a href="index.html">障害登録フォームに戻る</a>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const issueTableBody = document.querySelector('#issueTable tbody');
+      const noIssuesMessage = document.getElementById('noIssuesMessage');
+
+      // Function to display issues in the table
+      function displayIssues() {
+        let issues = JSON.parse(localStorage.getItem('issues')) || [];
+        issueTableBody.innerHTML = ''; // Clear existing table content
+
+        if (issues.length === 0) {
+          noIssuesMessage.style.display = 'block';
+          document.getElementById('issueTable').style.display = 'none';
+          return;
+        } else {
+          noIssuesMessage.style.display = 'none';
+          document.getElementById('issueTable').style.display = 'table';
+        }
+
+        issues.forEach((issue, index) => {
+          const row = issueTableBody.insertRow();
+          row.insertCell().textContent = issue.title;
+          row.insertCell().textContent = issue.date;
+          row.insertCell().textContent = issue.human;
+          row.insertCell().textContent = issue.summary;
+          row.insertCell().textContent = issue.description;
+          row.insertCell().textContent = issue.severity;
+          row.insertCell().textContent = issue.registeredAt;
+
+          const deleteCell = row.insertCell();
+          const deleteButton = document.createElement('button');
+          deleteButton.textContent = '削除';
+          deleteButton.classList.add('delete-btn');
+          deleteButton.addEventListener('click', () => {
+            if (confirm('本当にこの障害を削除しますか？')) {
+              deleteIssue(index);
+            }
+          });
+          deleteCell.appendChild(deleteButton);
+        });
+      }
+
+      // Function to delete an issue
+      function deleteIssue(indexToDelete) {
+        let issues = JSON.parse(localStorage.getItem('issues')) || [];
+        issues.splice(indexToDelete, 1); // Remove the item at the specified index
+        localStorage.setItem('issues', JSON.stringify(issues)); // Update localStorage
+        displayIssues(); // Re-render the table
+      }
+
+      // Initial display of issues when the page loads
+      displayIssues();
+    });
+  </script>
+
+</body>
+</html>
